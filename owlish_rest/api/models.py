@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 
 class UserProfileManager(BaseUserManager):
     """ Manager para perfiles """
-    def create_user(self,email,pwd=None,first_name=None,last_name=None,gender=None,company=None,city=None,title=None):
+    def create_user(self,email,password=None,first_name=None,last_name=None,gender=None,company=None,city=None,title=None):
         if not email:
             raise ValueError('email unexistent')
         
@@ -14,10 +14,11 @@ class UserProfileManager(BaseUserManager):
         user.set_password(pwd)
         return user
 
-    def create_superuser(self, email,first_name=None,last_name=None):
-        user = self.create_user(email,first_name,last_name)
+    def create_superuser(self, email,password=None,first_name=None,last_name=None):
+        user = self.create_user(email,password,first_name,last_name)
 
         user.is_superuser = True
+
         user.is_staff = True
 
         
@@ -27,14 +28,14 @@ class UserProfileManager(BaseUserManager):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Modelo para usuarios"""
-    first_name= models.CharField(max_length=255)
-    last_name=models.CharField(max_length=255)
+    first_name= models.CharField(max_length=255,blank=True)
+    last_name=models.CharField(max_length=255,blank=True)
     email= models.EmailField(max_length=255,unique=True)
-    gender=models.CharField(max_length=6)
-    company=models.CharField(max_length=255)
-    city=models.CharField(max_length=255)
-    title=models.CharField(max_length=255)
-    coord = models.CharField(max_length=255)
+    gender=models.CharField(max_length=6,blank=True)
+    company=models.CharField(max_length=255,blank=True)
+    city=models.CharField(max_length=255,blank=True)
+    title=models.CharField(max_length=255,blank=True)
+    coord = models.CharField(max_length=255,blank=True)
     is_staff = models.BooleanField(default=False)
     objects = UserProfileManager()
 
