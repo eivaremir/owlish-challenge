@@ -38,7 +38,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     objects = UserProfileManager()
 
-    REQUIRED_FIELDS = ['email']
-
+    #REQUIRED_FIELDS = ['email']
+    USERNAME_FIELD = 'email'
     def __str__(self):
         return self.first_name+" "+self.last_name
