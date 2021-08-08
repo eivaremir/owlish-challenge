@@ -28,14 +28,14 @@ class UserProfileManager(BaseUserManager):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Modelo para usuarios"""
-    first_name= models.CharField(max_length=255,blank=True)
-    last_name=models.CharField(max_length=255,blank=True)
+    first_name= models.CharField(max_length=255,blank=True,null=True)
+    last_name=models.CharField(max_length=255,blank=True,null=True)
     email= models.EmailField(max_length=255,unique=True)
-    gender=models.CharField(max_length=6,blank=True)
-    company=models.CharField(max_length=255,blank=True)
-    city=models.CharField(max_length=255,blank=True)
-    title=models.CharField(max_length=255,blank=True)
-    coord = models.CharField(max_length=255,blank=True)
+    gender=models.CharField(max_length=6,blank=True,null=True)
+    company=models.CharField(max_length=255,blank=True,null=True)
+    city=models.CharField(max_length=255,blank=True,null=True)
+    title=models.CharField(max_length=255,blank=True,null=True)
+    coord = models.CharField(max_length=255,blank=True,null=True)
     is_staff = models.BooleanField(default=False)
     objects = UserProfileManager()
 
