@@ -42,4 +42,4 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     #REQUIRED_FIELDS = ['email']
     USERNAME_FIELD = 'email'
     def __str__(self):
-        return self.first_name+" "+self.last_name
+        return self.first_name if self.first_name else '' +" "+self.last_name if self.last_name else ''
