@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 
 class UserProfileManager(BaseUserManager):
     """ Manager para perfiles """
-    def create_user(self,email,first_name=None,last_name=None,gender=None,company=None,city=None,title=None):
+    def create_user(self,email,pwd=None,first_name=None,last_name=None,gender=None,company=None,city=None,title=None):
         if not email:
             raise ValueError('email unexistent')
         
@@ -11,7 +11,7 @@ class UserProfileManager(BaseUserManager):
         user = self.model(email=email,first_name=first_name,last_name=last_name)
 
         user.save(using = self._db)
-
+        user.set_password(pwd)
         return user
 
     def create_superuser(self, email,first_name=None,last_name=None):
