@@ -75,7 +75,7 @@ from rest_framework.views import APIView
 class CustomersView(APIView):
     serializer_class = serializers.CustomerSerializer
     
-    parameters =[
+    get_parameters =[
         openapi.Parameter('pk',in_=openapi.IN_QUERY,description='Primary key (identifier) of the customer',type=openapi.TYPE_INTEGER),
         openapi.Parameter('first_name',in_=openapi.IN_QUERY,description='Customer\'s first name',type=openapi.TYPE_STRING),
         openapi.Parameter('last_name',in_=openapi.IN_QUERY,description='Customer\'s last name',type=openapi.TYPE_STRING),
@@ -87,7 +87,7 @@ class CustomersView(APIView):
         openapi.Parameter('coord',in_=openapi.IN_QUERY,description='Customer\'s coordinates',type=openapi.TYPE_STRING),
 
     ]
-    @swagger_auto_schema(manual_parameters=parameters)
+    @swagger_auto_schema(manual_parameters=get_parameters)
     def get(self,request):
         serializer = serializers.GetCustomerSerializer(data = request.GET)
 
@@ -132,55 +132,50 @@ class CustomersView(APIView):
         
         #if looking for a specific customer (pk is included in the req.)
         
+    post_parameters =[
+        
+        #openapi.Parameter('first_name',in_=openapi.IN_BODY,description='Customer\'s first name',type=openapi.TYPE_STRING),
+        #openapi.Parameter('last_name',in_=openapi.IN_QUERY,description='Customer\'s last name',type=openapi.TYPE_STRING),
+        #openapi.Parameter('email',in_=openapi.IN_QUERY,description='Customer\'s email address',type=openapi.TYPE_STRING),
+        #openapi.Parameter('gender',in_=openapi.IN_QUERY,description='Customer\'s gender ("Male" or "Female")',type=openapi.TYPE_STRING),
+        #openapi.Parameter('company',in_=openapi.IN_QUERY,description='Customer\'s work company',type=openapi.TYPE_STRING),
+        #openapi.Parameter('city',in_=openapi.IN_QUERY,description='Customer\'s city address',type=openapi.TYPE_STRING),
+        #openapi.Parameter('title',in_=openapi.IN_QUERY,description='Customer\'s work position',type=openapi.TYPE_STRING),
+        #openapi.Parameter('coord',in_=openapi.IN_QUERY,description='Customer\'s coordinates',type=openapi.TYPE_STRING),
 
-
-
-class HelloAPIView(APIView):
-    """ TEST API VIEW """
-    serializer_class = serializers.HelloSerializer
-
-    def get(self,request,format=None):
-        an_apiview = [
-            'test1','test2',2123
-        ]
-
-        return Response({
-            'message':'ok',
-            'an_apiview':an_apiview
-        })
-
-    def post(self, request):
-        """create a msg with our name"""
-        serializer = self.serializer_class(data = request.data)
-
-        if serializer.is_valid():
-            name = serializer.validated_data.get('name')
-            message = f'hello, {name}'
-            return Response({
-                'message':message
-            })
-        else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
-    def put(self,request,pk=None):
-        """Update an element"""
-        return Response({
-            'method':'PUT'
-        })
-
-    def patch(self,request,pk=None):
-        """Partially Update an element"""
-        return Response({
-            'method':'PATCH'
-        })
+    ]
+    #@swagger_auto_schema(manual_parameters=post_parameters)
     
-    def delete(self,request,pk=None):
-        """delete an element"""
-        return Response({
-            'method':'DELETE'
-        })
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['first_name','last_name','email'],
+            properties={
+                'first_name': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's first name",title="First Name"),
+                'last_name': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's last name",title="Last Name"),
+                'email': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's email address",title="E-mail"),
+                'gender': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's biological gender",title="Gender"),
+                #'last_name': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's last name",title="Last Name"),
+                #'last_name': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's last name",title="Last Name"),
+            },
+        ))
+    def post(self,request):
+        """Creates a new customer"""
         
-        
-        
+        serializer = self.serializer_class(data =request.data)
+       
+        if serializer.is_valid():
+            c = serializer.create(serializer.validated_data)
+            #pdb.set_trace()
+            c.save()
+            
+            return Response({
+                    "status":"ok",
+                    "customer":serializer.validated_data
+                },
+                status.HTTP_201_CREATED
+            )
+        else:
+            #pdb.set_trace()
+            return Response(serializer.errors,  status=status.HTTP_400_BAD_REQUEST     )
+
