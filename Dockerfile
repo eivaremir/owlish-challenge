@@ -1,10 +1,13 @@
 FROM python:alpine AS base
 
+
+
+
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 
-WORKDIR /app
+WORKDIR /owlish-rest
 COPY . .
 
-CMD python /app/app/manage.py
+CMD python /owlish-rest/owlish_rest/manage.py runserver 0.0.0.0:8000
