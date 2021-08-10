@@ -20,4 +20,4 @@ COPY . .
 
 RUN apk del build-deps
 
-CMD python /owlish-rest/owlish_rest/manage.py runserver 0.0.0.0:4000
+CMD python /owlish-rest/owlish_rest/manage.py runserver 0.0.0.0:80
