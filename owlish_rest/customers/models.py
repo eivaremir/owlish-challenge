@@ -48,6 +48,12 @@ class Customer(models.Model):
     def coordinates(self):
         return self.get_coordinates(self.city)
 
+    def set_coordinates(self):
+        coords = Customer.get_coordinates(self.city)
+        self.lat = coords['lat']
+        self.lng = coords['lng']
+        return coords
+
 
 from django.db.models.signals import pre_save, pre_init,post_init
 

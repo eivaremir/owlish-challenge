@@ -1,6 +1,6 @@
 # Create your views here.
 
-#from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import status # http result codes
 from rest_framework.response import Response
@@ -16,6 +16,26 @@ from . import serializers
 # Models
 from customers.models import Customer
 
+
+
+@api_view(['GET'])
+def get_customer(request,pk):
+    c = Customer.objects.get(pk=pk)
+    return Response({
+        'result':'ok',
+        'customer':{
+            'pk':c.pk,
+            'first_name':c.first_name,
+            'last_name':c.last_name,
+            'email':c.email,
+            'gender':c.gender,
+            'company':c.company,
+            'city':c.city,
+            'title':c.title,
+            'lat':c.lat,
+            'lng':c.lng
+        }
+    })
 
 class CustomersView(APIView):
     serializer_class = serializers.CustomerSerializer
