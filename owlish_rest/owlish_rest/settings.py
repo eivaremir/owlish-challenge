@@ -133,3 +133,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # use this as authentication
 AUTH_USER_MODEL = 'api.UserProfile'
+
+
+
+
+import os
+os.environ['GEOCODEAPIKEY']='AIzaSyBuq8a6T7bAej_TRs6eT75wUByB6KBjfSU'

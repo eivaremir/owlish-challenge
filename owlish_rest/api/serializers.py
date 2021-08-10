@@ -17,10 +17,11 @@ class GetCustomerSerializer(serializers.ModelSerializer):
     company=serializers.CharField(max_length=255,required=False)
     city=serializers.CharField(max_length=255,required=False)
     title=serializers.CharField(max_length=255,required=False)
-    coord = serializers.CharField(max_length=255,required=False)
+    lat = serializers.FloatField(required=False)
+    lng = serializers.FloatField(required=False)
     class Meta:
         model = Customer
-        fields =['pk','first_name','last_name','email','gender','company','city','title','coord']
+        fields =('pk','first_name','last_name','email','gender','company','city','title','lat','lng')
     
 
     
@@ -30,18 +31,24 @@ class CustomerSerializer(serializers.Serializer):
     email= serializers.EmailField(max_length=255)
     gender=serializers.CharField(max_length=6,required=False)
     company=serializers.CharField(max_length=255,required=False)
-    city=serializers.CharField(max_length=255,required=False)
+    city=serializers.CharField(max_length=255,required=True)
     title=serializers.CharField(max_length=255,required=False)
-    coord = serializers.CharField(max_length=255,required=False)
+    
+
+    lat = serializers.FloatField(required=False)
+    lng = serializers.FloatField(required=False)
+
     class Meta:
         model = Customer
-        fields =('first_name','last_name','email','gender','company','city','title','coord')
+        fields =('first_name','last_name','email','gender','company','city','title','lat','lng')
         
     def validate(self, data):
         if len(Customer.objects.filter(email=data.get('email',''))) > 0:
             raise ValidationError("Email Exists")
         return data
 
-    def create(self,validated_data):
-        return Customer(**validated_data)
+    #def create(self,validated_data):
+        # get customer coordinates
+        
+    #    return Customer(**validated_data)
     
