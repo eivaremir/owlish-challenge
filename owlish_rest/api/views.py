@@ -100,10 +100,11 @@ class CustomersView(APIView):
         if serializer.is_valid():
             #customer = serializer.create(serializer.validated_data)
             
-            pdb.set_trace()
+            #pdb.set_trace()
             customer=Customer.objects.create(**serializer.validated_data)
             #if  'city' in serializer.validated_data:
-            
+            customer.lat, customer.lng = list(map(lambda x:float(x), Customer.get_maps_link(customer.city).split('/')[-1].split(',')))
+            customer.maps_link = f'https://www.google.com/maps/search/{customer.lat},{customer.lng}'
             customer.save()
             #else: 
             #    customer.save()
@@ -118,3 +119,7 @@ class CustomersView(APIView):
             #pdb.set_trace()
             return Response(serializer.errors,  status=status.HTTP_400_BAD_REQUEST     )
 
+    def delete(self,request,pk):
+        """delete a customer by its pk"""
+
+        Customer.objects.delete()

@@ -45,11 +45,12 @@ class Customer(models.Model):
 from django.db.models.signals import pre_save, pre_init,post_init
 
 
-def set_customer_coordinates(sender, instance,**kwargs):
-    """Function to be executed just after customer creation to setup the coordinates"""
-    if instance.city:
-        instance.lat, instance.lng = list(map(lambda x:float(x), Customer.get_maps_link(instance.city).split('/')[-1].split(',')))
-        instance.maps_link = f'https://www.google.com/maps/search/{instance.lat},{instance.lng}'
+#def set_customer_coordinates(sender, instance,**kwargs):
+#    """Function to be executed just after customer creation to setup the coordinates"""
+#    import pdb;pdb.set_trace()
+#    if instance.city:
+#        instance.lat, instance.lng = list(map(lambda x:float(x), Customer.get_maps_link(instance.city).split('/')[-1].split(',')))
+#        instance.maps_link = f'https://www.google.com/maps/search/{instance.lat},{instance.lng}'
     
 def update_customer_coordinates(sender, instance, **kwargs):
     """Function to be executed just after customer UPDATES """
@@ -69,4 +70,4 @@ def update_customer_coordinates(sender, instance, **kwargs):
     
 
 pre_save.connect(update_customer_coordinates, sender=Customer)
-post_init.connect(set_customer_coordinates, sender=Customer)
+#post_init.connect(set_customer_coordinates, sender=Customer)
