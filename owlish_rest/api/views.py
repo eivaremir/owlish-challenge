@@ -98,17 +98,11 @@ class CustomersView(APIView):
         serializer = self.serializer_class(data =request.data)
        
         if serializer.is_valid():
-            #customer = serializer.create(serializer.validated_data)
-            
-            #pdb.set_trace()
             customer=Customer.objects.create(**serializer.validated_data)
-            #if  'city' in serializer.validated_data:
             customer.lat, customer.lng = list(map(lambda x:float(x), Customer.get_maps_link(customer.city).split('/')[-1].split(',')))
             customer.maps_link = f'https://www.google.com/maps/search/{customer.lat},{customer.lng}'
             customer.save()
-            #else: 
-            #    customer.save()
-
+            
             return Response({
                     "status":"ok",
                     "customer":serializer.validated_data
@@ -118,8 +112,24 @@ class CustomersView(APIView):
         else:
             #pdb.set_trace()
             return Response(serializer.errors,  status=status.HTTP_400_BAD_REQUEST     )
-
-    def delete(self,request,pk):
+    @swagger_auto_schema(
+            request_body=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                required=['pk'],
+                properties={
+                    'pk': openapi.Schema(type=openapi.TYPE_INTEGER,description="Customer's id",title="ID"),
+                },
+            ))
+    def delete(self,request):
         """delete a customer by its pk"""
-
-        Customer.objects.delete()
+        serializer = serializers.DeleteCustomerSerializer(data =request.data)
+        if serializer.is_valid():
+            Customer.objects.get(pk = serializer.validated_data.get('pk')).delete()
+            return Response({
+                    "status":"ok",
+                    "customer":serializer.validated_data
+                },
+                status.HTTP_200_OK
+            )
+        else:
+            return Response(serializer.errors,  status=status.HTTP_400_BAD_REQUEST     )

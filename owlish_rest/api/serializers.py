@@ -23,6 +23,17 @@ class GetCustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields =('pk','first_name','last_name','email','gender','company','city','title','lat','lng')
     
+class DeleteCustomerSerializer(serializers.ModelSerializer):
+    
+    pk = serializers.IntegerField(required=True)
+    def validate(self, data):
+        if len(Customer.objects.filter(pk=data.get('pk',0))) == 0:
+            raise ValidationError("client does not exist")
+        return data
+    class Meta:
+        model = Customer
+        fields =('pk',)
+    
 
     
 class CustomerSerializer(serializers.Serializer):
