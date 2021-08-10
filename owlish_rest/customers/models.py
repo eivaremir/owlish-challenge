@@ -30,7 +30,14 @@ class Customer(models.Model):
         key = os.environ['GEOCODEAPIKEY']
         address = urllib.parse.quote(address)
         geocode_response = requests.get(f'https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}').json()
-        return geocode_response['results'][0]['geometry']['location']
+        
+        if len(geocode_response['results']) > 0 :
+            return geocode_response['results'][0]['geometry']['location']
+        else:
+            return  {
+                    "lat": 0,
+                    "lng":0
+                }
     
     @classmethod
     def get_maps_link(cls,address):
@@ -61,13 +68,18 @@ def update_customer_coordinates(sender, instance, **kwargs):
         # if city has content and city is within the updated fields
         if len(instance.city)>0 and 'city' in kwargs['update_fields'] :
             # get coordinates
-            instance.lat, instance.lng = list(map(lambda x:float(x), Customer.get_maps_link(instance.city).split('/')[-1].split(',')))
+            
+            coord =instance.coordinates()
+            instance.lat = coord['lat']
+            instance.lng = coord['lng']
+
             instance.maps_link = f'https://www.google.com/maps/search/{instance.lat},{instance.lng}'
+            #import pdb; pdb.set_trace()
         # if city has been deleted
         elif len(instance.city)==0 and 'city' in kwargs['update_fields']:
             instance.lat, instance.lng = (None,None)
             instance.maps_link = None
-    
+        instance.save()
 
 pre_save.connect(update_customer_coordinates, sender=Customer)
 #post_init.connect(set_customer_coordinates, sender=Customer)

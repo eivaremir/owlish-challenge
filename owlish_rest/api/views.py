@@ -35,6 +35,7 @@ class CustomersView(APIView):
     ]
     @swagger_auto_schema(manual_parameters=get_parameters)
     def get(self,request):
+        """Get a customer by any of its attributes"""
         serializer = serializers.GetCustomerSerializer(data = request.GET)
 
         #valid_fields = []
@@ -78,9 +79,7 @@ class CustomersView(APIView):
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
-    @swagger_auto_schema(
-        request_body=openapi.Schema(
+    schema = openapi.Schema(
             type=openapi.TYPE_OBJECT,
             required=['first_name','last_name','email'],
             properties={
@@ -89,9 +88,10 @@ class CustomersView(APIView):
                 'email': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's email address",title="E-mail"),
                 'gender': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's biological gender",title="Gender"),
                 'city': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's Address",title="City address"),
-                #'last_name': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's last name",title="Last Name"),
+                'title': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's Work Position",title="Title"),
             },
-        ))
+        )
+    @swagger_auto_schema(request_body=schema)
     def post(self,request):
         """Creates a new customer"""
         
@@ -132,4 +132,53 @@ class CustomersView(APIView):
                 status.HTTP_200_OK
             )
         else:
+            return Response(serializer.errors,  status=status.HTTP_400_BAD_REQUEST     )
+    patch_schema = openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['first_name','last_name','email'],
+            properties={
+                'pk': openapi.Schema(type=openapi.TYPE_INTEGER,description="Customer's id",title="ID"),
+                'first_name': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's first name",title="First Name"),
+                'last_name': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's last name",title="Last Name"),
+                'email': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's email address",title="E-mail"),
+                'gender': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's biological gender",title="Gender"),
+                'city': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's Address",title="City address"),
+                'title': openapi.Schema(type=openapi.TYPE_STRING,description="Customer's Work Position",title="Title"),
+            },
+        )
+    @swagger_auto_schema(request_body=patch_schema)
+    def patch(self,request):
+        """Partially updates a customer by its pk. """
+        serializer = serializers.PatchCustomerSerializer(data =request.data)
+       
+        if serializer.is_valid():
+            customer = Customer.objects.get(pk = serializer.validated_data.get('pk'))
+            errors = []
+            update_fields = []
+            for k,v in serializer.validated_data.items(): 
+                
+                try:
+                    #print(f'customer.{k} = {v}')
+                    if k !='pk':
+
+                        update_fields.append(k)
+
+                        if  eval(f'type(customer.{k})') == str or   eval(f'type(customer.{k})') == None :
+                            exec(f'customer.{k} = """{v}"""')
+                        else:
+                            try: exec(f'customer.{k} = {v}')
+                            except : exec(f'customer.{k} = """{v}"""')
+                except Exception as ex:
+                    errors.append(str(ex))
+            customer.save(update_fields=update_fields)
+            
+            return Response({
+                    "status":"ok",
+                    "customer":serializer.validated_data,
+                    "errors": errors if len(errors)>0 else False
+                },
+                status.HTTP_201_CREATED
+            )
+        else:
+            #pdb.set_trace()
             return Response(serializer.errors,  status=status.HTTP_400_BAD_REQUEST     )
